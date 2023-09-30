@@ -1,19 +1,15 @@
 //contar carpetas
 window.onload = CargarHtml;
-// Función para hacer la solicitud AJAX al archivo PHP
 
-
-//bucle para levantar txt de cada carpeta
 //async function contarCarpetas(){
-  async function CargarHtml(){
+async function CargarHtml(){
 
   const modelos = document.getElementById("modelos");
- 
   var cantCarpetas = 0;
   //var rutas = [];
   //var descripciones = []
 
-  await fetch('/Cantidad_de_Modelos.txt')
+  await fetch('config/Cantidad_de_Modelos.txt')
   .then(res => res.text())
   .then(content => {
     let lines = content.split(/\n/);
@@ -56,7 +52,7 @@ window.onload = CargarHtml;
     input.id="flexRadioDefault_" + i;
 
     form_check.appendChild(input);
-   
+
     for (let index = 1; index < 5; index++) {
       var item = document.createElement("div");
   
@@ -115,47 +111,8 @@ window.onload = CargarHtml;
     carousel.appendChild(form_check);
   
     modelos.appendChild(carousel);
-    
-    
-  }
-
-
-
-
- /* CARROUSEL
-    <div id="carouselExample_1" class="carousel slide carousel-fade">
-      <div class="carousel-inner">
-      <div class="carousel-item active">
-          <img src="/modelos/Modelo1/Foto1.png" class="d-block" alt="img-model-coti" width="200px" height="250px">
-      </div>
-      <div class="carousel-item">
-          <img src="/modelos/Modelo1/Coti_2.png" class="d-block" alt="img-model-coti" width="200px" height="250px">
-      </div>
-      <div class="carousel-item">
-          <img src="/modelos/Modelo1/Coti_3.png" class="d-block" alt="img-model-coti" width="200px" height="250px">
-      </div>
-      <div class="carousel-item">
-          <img src="/modelos/Modelo1/Coti_3.png" class="d-block" alt="img-model-coti" width="200px" height="250px">
-      </div>
-  </div>
-  BOTONES
-  <button class="carousel-control-prev" type="button" data-bs-target="#carouselExample_1" data-bs-slide="prev">
-      <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-      <span class="visually-hidden">Previous</span>
-  </button>
-  <button class="carousel-control-next" type="button" data-bs-target="#carouselExample_1" data-bs-slide="next">
-      <span class="carousel-control-next-icon" aria-hidden="true"></span>
-      <span class="visually-hidden">Next</span>
-  </button>
-</div>
-
-
-  for (let index = 0; index < tt-1; index++) {
-    //construir html - carrouseles
 
   }
-
-*/
 
 }
 
