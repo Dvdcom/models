@@ -1,0 +1,12 @@
+{
+    "manifest_version":3,
+    "name":"modelos",
+    "version":"1.0",
+    "description":"pantalla de carga de modelos al portapapeles",
+    "icons":{
+        "128":"modelo.png"
+    },
+    "action":{
+        "default_popup":"popup.html"
+    }
+}
