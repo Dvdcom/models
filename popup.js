@@ -37,21 +37,22 @@ async function CargarHtml(){
 
   for (let i = 1; i < tt; i++) {
 
+    //Creacion de carousel
     const carousel = document.createElement("div");
     carousel.id = "carouselExample_" + i;
     carousel.className = "carousel slide carousel-fade";
     const carousel_inner = document.createElement("div");
     carousel_inner.className = "carousel-inner";
 
-    const form_check = document.createElement("div");
-    form_check.className = "form-check"
-    const input = document.createElement("input");
-    input.className = "form-check-input";
-    input.type = "radio";
-    input.name = "flexRadioDefault";
-    input.id="flexRadioDefault_" + i;
+    //Creacion de boton 
+    const pulsar = document.createElement("div");
+    pulsar.className = "c-btn-pulsar"
+    const btn = document.createElement("button");
+    btn.className = "btn btn-outline-light";
+    btn.type = "button";
+    btn.innerText = "Copiar"
 
-    form_check.appendChild(input);
+    pulsar.appendChild(btn);
 
     for (let index = 1; index < 5; index++) {
       var item = document.createElement("div");
@@ -108,7 +109,7 @@ async function CargarHtml(){
     buttonnext.appendChild(control_span3);
   
     carousel.appendChild(buttonnext);
-    carousel.appendChild(form_check);
+    carousel.appendChild(pulsar);
   
     modelos.appendChild(carousel);
 
