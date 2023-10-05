@@ -1,41 +1,49 @@
-//contar carpetas
-window.onload = CargarHtml;
+// Variable global para almacenar el contador de carpetas
+let contadorCarpetas = 0;
+
+// Ruta local de la carpeta que deseas contar
+const ruta = './modelos';
+
+// Función para contar carpetas
+// Función para contar carpetas
+async function contarCarpetas() {
+  try {
+    const response = await fetch(ruta);
+    if (!response.ok) {
+      throw new Error('Error al obtener la lista de archivos.');
+    }
+
+    const data = await response.text();
+
+    // Convertir la respuesta en un documento HTML
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(data, 'text/html');
+    
+    // Obtener una lista de elementos <a> que representan carpetas
+    const carpetas = doc.querySelectorAll('a');
+
+    // Contar las carpetas
+    contadorCarpetas = Array.from(carpetas).filter(a => {
+      return a.classList.contains('icon-directory');
+    }).length;
+
+    // Llamar a otra función que utiliza el contador de carpetas
+    CargarHtml(contadorCarpetas);
+  } 
+  catch (error) {
+    console.error('Error:', error);
+  }
+}
+
+// Llamar a la función para contar carpetas cuando se cargue la página
+window.onload = contarCarpetas;
 
 //async function contarCarpetas(){
-async function CargarHtml(){
+function CargarHtml(ttCarpeta){
 
   const modelos = document.getElementById("modelos");
-  var cantCarpetas = 0;
-  //var rutas = [];
-  //var descripciones = []
-
-  await fetch('config/Cantidad_de_Modelos.txt')
-  .then(res => res.text())
-  .then(content => {
-    let lines = content.split(/\n/);
-    lines.forEach(line => cantCarpetas = line);
-  });
-
-  var tt = parseInt(cantCarpetas) + 1
-
-/*
-  for (var i = 1; i < tt; i++) {
-    rutas.push("/modelos/Modelo" + i + "/Descripcion.txt");
-  }
-
-  await Promise.all(
-    rutas.map(async (element) => {
-      const res = await fetch(element);
-      const content = await res.text();
-      let lines = content.split(/\n/);
-      lines.forEach((line) => descripciones.push(line));
-    })
-  );
-  */
-
   //Crear carrouseles
-
-  for (let i = 1; i < tt; i++) {
+  for (let i = 1; i < ttCarpeta; i++) {
 
     //Creacion de carousel
     const carousel = document.createElement("div");
@@ -117,3 +125,32 @@ async function CargarHtml(){
 
 }
 
+  /* levantar info de carpetas
+  var cantCarpetas = 0;
+  var rutas = [];
+  var descripciones = []
+ */
+
+  /*
+  await fetch('config/Cantidad_de_Modelos.txt')
+  .then(res => res.text())
+  .then(content => {
+    let lines = content.split(/\n/);
+    lines.forEach(line => cantCarpetas = line);
+  });
+  
+
+  for (var i = 1; i < ttCarpeta; i++) {
+    rutas.push("/modelos/Modelo" + i + "/Descripcion.txt");
+  }
+
+  await Promise.all(
+    rutas.map(async (element) => {
+      const res = await fetch(element);
+      const content = await res.text();
+      let lines = content.split(/\n/);
+      lines.forEach((line) => descripciones.push(line));
+    })
+  );
+  */
+  //crear json con informacion
