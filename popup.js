@@ -59,7 +59,9 @@ function CargarHtml(ttCarpeta){
     btn.className = "btn btn-outline-light";
     btn.type = "button";
     btn.innerText = "Copiar"
-
+    btn.addEventListener("click",function(){
+      copiar(i);
+    })
     pulsar.appendChild(btn);
 
     for (let index = 1; index < 5; index++) {
@@ -74,7 +76,7 @@ function CargarHtml(ttCarpeta){
       var ruta = "/modelos/Modelo" + i + "/Foto" + index + ".png";
       foto.src = ruta;
       foto.className = "d-block";
-      foto.alt = "Foto-Modelo-" + index;
+      foto.alt = "Foto" + index;
       foto.setAttribute("width","200px");
       foto.setAttribute("height","250px");
       item.appendChild(foto);
@@ -98,7 +100,9 @@ function CargarHtml(ttCarpeta){
   
     control_span.appendChild(control_span2);
     buttonprev.appendChild(control_span);
-  
+    buttonprev.addEventListener('click',function(){
+      pasarPagina(i);
+    })
     carousel.appendChild(buttonprev);
   
     const buttonnext = document.createElement("button");
@@ -115,7 +119,10 @@ function CargarHtml(ttCarpeta){
   
     control_span3.appendChild(control_span4);
     buttonnext.appendChild(control_span3);
-  
+    buttonnext.addEventListener('click',function(){
+      pasarPagina(i);
+    })
+    
     carousel.appendChild(buttonnext);
     carousel.appendChild(pulsar);
   
@@ -123,6 +130,41 @@ function CargarHtml(ttCarpeta){
 
   }
 
+}
+
+function copiar(element){
+    console.log("la galeria seleccionada es : " + element)
+}
+
+function pasarPagina(galeria) {
+  // Convierte el número en una cadena
+  const galeriaString = galeria.toString();
+  
+  const idCarrusel = 'carouselExample_' + galeriaString;
+  // Busca el carrusel activo utilizando el ID construido
+  const carruselActivo = document.querySelector(`#${idCarrusel}.carousel`);
+  
+  if (carruselActivo) {
+    // Encontrar el elemento "carousel-item" activo dentro del carrusel
+    const itemActivo = carruselActivo.querySelector('.carousel-item.active');
+    
+    if (itemActivo) {
+      // Encontrar la imagen "img" dentro del elemento "carousel-item" activo
+      const imagenActiva = itemActivo.querySelector('img');
+      
+      if (imagenActiva) {
+        // Hacer algo con la imagen activa (por ejemplo, acceder a su atributo src)
+        const alt = imagenActiva.alt;
+        console.log('Galeria ' + galeria + ' y la imagen activa es: ', alt , ' su ruta es: ' + imagenActiva.src);
+      } else {
+        console.error('No se encontró ninguna imagen en el elemento activo del carrusel.');
+      }
+    } else {
+      console.error('No se encontró ningún elemento activo en el carrusel.');
+    }
+  } else {
+    console.error('No se encontró ningún carrusel con el ID especificado.');
+  }
 }
 
   /* levantar info de carpetas
