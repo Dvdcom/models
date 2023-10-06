@@ -40,6 +40,8 @@ window.onload = contarCarpetas;
 //async function contarCarpetas(){
 function CargarHtml(ttCarpeta){
 
+  obtener_LocalStorage()
+
   const modelos = document.getElementById("modelos");
   //Crear carrouseles
   for (let i = 1; i < ttCarpeta; i++) {
@@ -124,6 +126,8 @@ function CargarHtml(ttCarpeta){
   
     modelos.appendChild(carousel);
 
+    guardar_localStorage(ttCarpeta,[1,1,1]);
+
   }
 
 }
@@ -161,6 +165,28 @@ function pasarPagina(galeria) {
   } else {
     console.error('No se encontró ningún carrusel con el ID especificado.');
   }
+}
+
+function obtener_LocalStorage(){
+
+  if(localStorage.getItem("datos")){
+
+     let galeria = JSON.parse(localStorage.getItem("datos"));
+
+    console.log(galeria);
+  }else{
+    console.log('no hay entrada de local storage');
+  }
+  
+}
+
+function guardar_localStorage(cant,pos){
+  let galeria = {
+    Cant_Galerias : cant,
+    posiciones : pos,  
+  }
+
+  localStorage.setItem("datos",JSON.stringify(galeria));
 }
 
   /* levantar info de carpetas
