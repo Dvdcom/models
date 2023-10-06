@@ -1,36 +1,69 @@
 // Variable global para almacenar el contador de carpetas
 let contadorCarpetas = 0;
+let contadorFotos = 0;
 
 // Ruta local de la carpeta que deseas contar
 const ruta = './modelos';
 
-// Función para contar carpetas
+// Función para contar carpetas y fotos
 async function contarCarpetas() {
   try {
     const response = await fetch(ruta);
+    
     if (!response.ok) {
       throw new Error('Error al obtener la lista de archivos.');
     }
-
+    
     const data = await response.text();
-
+    
     // Convertir la respuesta en un documento HTML
     const parser = new DOMParser();
     const doc = parser.parseFromString(data, 'text/html');
     
     // Obtener una lista de elementos <a> que representan carpetas
-    const carpetas = doc.querySelectorAll('a');
-
+    const carpetas = doc.querySelectorAll('a.icon-directory');
+    
     // Contar las carpetas
-    contadorCarpetas = Array.from(carpetas).filter(a => {
-      return a.classList.contains('icon-directory');
-    }).length;
-
+    contadorCarpetas = carpetas.length;
+    
     // Llamar a otra función que utiliza el contador de carpetas
     CargarHtml(contadorCarpetas);
-  } 
-  catch (error) {
-    console.error('Error:', error);
+    
+    // Iterar sobre las carpetas para contar las fotos
+    for (let index = 1; index < contadorCarpetas; index++) {
+      const nuevaRuta = `./modelos/Modelo${index}`;
+      
+      try {
+        const reta = await fetch(nuevaRuta);
+        
+        if (!reta.ok) {
+          throw new Error('Error al obtener la lista de archivos.');
+        }
+        
+        const data2 = await reta.text();
+        
+        // Convertir la respuesta en un documento HTML
+        const parser2 = new DOMParser();
+        const docu = parser2.parseFromString(data2, 'text/html');
+        // Obtener una lista de elementos <a> que representan fotos
+        const fotos = docu.querySelectorAll('a.icon-image');
+        const nombres = docu.querySelectorAll('span.name');
+        nombres.forEach((element,index) => {
+              if (index >1 ){
+                console.log(element.innerText)
+              }
+            });
+        // Contar las fotos y sumar al contador global
+        contadorFotos = fotos.length;
+        console.log('la carpeta ' + nuevaRuta + ' cotiene : ' + contadorFotos + ' fotos.')
+      } catch (error) {
+        console.error('Error al contar fotos:', error);
+      }
+    }
+    
+    
+  } catch (error) {
+    console.error('Error al contar carpetas:', error);
   }
 }
 
@@ -40,7 +73,9 @@ window.onload = contarCarpetas;
 //async function contarCarpetas(){
 function CargarHtml(ttCarpeta){
 
-  obtener_LocalStorage()
+    
+
+  //obtener_LocalStorage()
 
   const modelos = document.getElementById("modelos");
   //Crear carrouseles
@@ -68,6 +103,7 @@ function CargarHtml(ttCarpeta){
     })
     pulsar.appendChild(btn);
 
+    //creacion de fotos en caroyu
     for (let index = 1; index < 5; index++) {
       var item = document.createElement("div");
   
@@ -126,11 +162,34 @@ function CargarHtml(ttCarpeta){
   
     modelos.appendChild(carousel);
 
-    guardar_localStorage(ttCarpeta,[1,1,1]);
+    //guardar_localStorage(ttCarpeta,[1,1,1]);
 
   }
 
 }
+
+function obtener_LocalStorage(){
+
+  if(localStorage.getItem("datos")){
+
+     let galeria = JSON.parse(localStorage.getItem("datos"));
+
+    console.log(galeria);
+  }else{
+    console.log('no hay entrada de local storage');
+  }
+  
+}
+
+function guardar_localStorage(cant,pos){
+  let galeria = {
+    Cant_Galerias : cant,
+    posiciones : pos,  
+  }
+
+  localStorage.setItem("datos",JSON.stringify(galeria));
+}
+
 
 function copiar(element){
     console.log("la galeria seleccionada es : " + element)
@@ -167,27 +226,6 @@ function pasarPagina(galeria) {
   }
 }
 
-function obtener_LocalStorage(){
-
-  if(localStorage.getItem("datos")){
-
-     let galeria = JSON.parse(localStorage.getItem("datos"));
-
-    console.log(galeria);
-  }else{
-    console.log('no hay entrada de local storage');
-  }
-  
-}
-
-function guardar_localStorage(cant,pos){
-  let galeria = {
-    Cant_Galerias : cant,
-    posiciones : pos,  
-  }
-
-  localStorage.setItem("datos",JSON.stringify(galeria));
-}
 
   /* levantar info de carpetas
   var cantCarpetas = 0;
