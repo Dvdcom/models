@@ -5,7 +5,6 @@ let contadorCarpetas = 0;
 const ruta = './modelos';
 
 // Función para contar carpetas
-// Función para contar carpetas
 async function contarCarpetas() {
   try {
     const response = await fetch(ruta);
@@ -49,6 +48,9 @@ function CargarHtml(ttCarpeta){
     const carousel = document.createElement("div");
     carousel.id = "carouselExample_" + i;
     carousel.className = "carousel slide carousel-fade";
+    carousel.addEventListener('slid.bs.carousel', function () {
+      pasarPagina(i)
+    })
     const carousel_inner = document.createElement("div");
     carousel_inner.className = "carousel-inner";
 
@@ -100,9 +102,6 @@ function CargarHtml(ttCarpeta){
   
     control_span.appendChild(control_span2);
     buttonprev.appendChild(control_span);
-    buttonprev.addEventListener('click',function(){
-      pasarPagina(i);
-    })
     carousel.appendChild(buttonprev);
   
     const buttonnext = document.createElement("button");
@@ -119,9 +118,6 @@ function CargarHtml(ttCarpeta){
   
     control_span3.appendChild(control_span4);
     buttonnext.appendChild(control_span3);
-    buttonnext.addEventListener('click',function(){
-      pasarPagina(i);
-    })
     
     carousel.appendChild(buttonnext);
     carousel.appendChild(pulsar);
