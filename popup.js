@@ -1,6 +1,8 @@
 // Variable global para almacenar el contador de carpetas
 let contadorCarpetas = 0;
 let contadorFotos = 0;
+let nomCarpetas = [];
+let nomFotos = [];
 
 // Ruta local de la carpeta que deseas contar
 const ruta = './modelos';
@@ -22,12 +24,17 @@ async function contarCarpetas() {
     
     // Obtener una lista de elementos <a> que representan carpetas
     const carpetas = doc.querySelectorAll('a.icon-directory');
+    const nombresCarpetas = doc.querySelectorAll('span.name');
+    nombresCarpetas.forEach((element,index)=>{
+      if (index > 0 ){
+        nomCarpetas.push(element.innerText);
+      }
+    })
     
     // Contar las carpetas
     contadorCarpetas = carpetas.length;
     
-    // Llamar a otra función que utiliza el contador de carpetas
-    CargarHtml(contadorCarpetas);
+    
     
     // Iterar sobre las carpetas para contar las fotos
     for (let index = 1; index < contadorCarpetas; index++) {
@@ -45,22 +52,24 @@ async function contarCarpetas() {
         // Convertir la respuesta en un documento HTML
         const parser2 = new DOMParser();
         const docu = parser2.parseFromString(data2, 'text/html');
+        console.log(docu);
         // Obtener una lista de elementos <a> que representan fotos
         const fotos = docu.querySelectorAll('a.icon-image');
         const nombres = docu.querySelectorAll('span.name');
-        nombres.forEach((element,index) => {
-              if (index >1 ){
-                console.log(element.innerText)
+        nombres.forEach((element) => {
+              if (element.innerText !== '..' && element.innerText !== 'Descripcion.txt' ){
+                nomFotos.push(index + '|' + element.innerText);
               }
             });
         // Contar las fotos y sumar al contador global
         contadorFotos = fotos.length;
-        console.log('la carpeta ' + nuevaRuta + ' cotiene : ' + contadorFotos + ' fotos.')
       } catch (error) {
         console.error('Error al contar fotos:', error);
       }
     }
     
+    // Llamar a otra función que utiliza el contador de carpetas
+    CargarHtml(contadorCarpetas);
     
   } catch (error) {
     console.error('Error al contar carpetas:', error);
@@ -71,108 +80,113 @@ async function contarCarpetas() {
 window.onload = contarCarpetas;
 
 //async function contarCarpetas(){
-function CargarHtml(ttCarpeta){
+  function CargarHtml(ttCarpeta) {
 
-    
+    nomFotos.forEach(element => {
+      console.log(element);
+  });
 
-  //obtener_LocalStorage()
+    /*
+    nomCarpetas.forEach(element => {
+        console.log(element);
+    });
+    */
 
-  const modelos = document.getElementById("modelos");
-  //Crear carrouseles
-  for (let i = 1; i < ttCarpeta; i++) {
+    //obtener_LocalStorage()
+    const modelos = document.getElementById("modelos");
+    //Crear carrouseles
+    for (let i = 1; i < ttCarpeta; i++) {
 
-    //Creacion de carousel
-    const carousel = document.createElement("div");
-    carousel.id = "carouselExample_" + i;
-    carousel.className = "carousel slide carousel-fade";
-    carousel.addEventListener('slid.bs.carousel', function () {
-      pasarPagina(i)
-    })
-    const carousel_inner = document.createElement("div");
-    carousel_inner.className = "carousel-inner";
+        //Creacion de carousel
+        const carousel = document.createElement("div");
+        carousel.id = "carouselExample_" + i;
+        carousel.className = "carousel slide carousel-fade";
+        carousel.addEventListener('slid.bs.carousel', function () {
+            pasarPagina(i);
+        });
+        const carousel_inner = document.createElement("div");
+        carousel_inner.className = "carousel-inner";
 
-    //Creacion de boton 
-    const pulsar = document.createElement("div");
-    pulsar.className = "c-btn-pulsar"
-    const btn = document.createElement("button");
-    btn.className = "btn btn-outline-light";
-    btn.type = "button";
-    btn.innerText = "Copiar"
-    btn.addEventListener("click",function(){
-      copiar(i);
-    })
-    pulsar.appendChild(btn);
+        //Creacion de boton 
+        const pulsar = document.createElement("div");
+        pulsar.className = "c-btn-pulsar";
+        const btn = document.createElement("button");
+        btn.className = "btn btn-outline-light";
+        btn.type = "button";
+        btn.innerText = "Copiar";
+        btn.addEventListener("click", function () {
+            copiar(i);
+        });
+        pulsar.appendChild(btn);
 
-    //creacion de fotos en caroyu
-    for (let index = 1; index < 5; index++) {
-      var item = document.createElement("div");
-  
-      if (index === 1) {
-        item.className = "carousel-item active";
-      }else{
-        item.className = "carousel-item"
-      }
-      var foto = document.createElement("img");
-      var ruta = "/modelos/Modelo" + i + "/Foto" + index + ".png";
-      foto.src = ruta;
-      foto.className = "d-block";
-      foto.alt = "Foto" + index;
-      foto.setAttribute("width","200px");
-      foto.setAttribute("height","250px");
-      item.appendChild(foto);
-  
-      carousel_inner.appendChild(item);
+        //creacion de fotos en caroyu
+        for (let index = 1; index < 5; index++) {
+            var item = document.createElement("div");
+
+            if (index === 1) {
+                item.className = "carousel-item active";
+            } else {
+                item.className = "carousel-item";
+            }
+            var foto = document.createElement("img");
+            var ruta = "/modelos/Modelo" + i + "/Foto" + index + ".png";
+            foto.src = ruta;
+            foto.className = "d-block";
+            foto.alt = "Foto" + index;
+            foto.setAttribute("width", "200px");
+            foto.setAttribute("height", "250px");
+            item.appendChild(foto);
+
+            carousel_inner.appendChild(item);
+        }
+
+        carousel.appendChild(carousel_inner);
+
+        const buttonprev = document.createElement("button");
+        buttonprev.className = "carousel-control-prev";
+        buttonprev.type = "button";
+        buttonprev.setAttribute("data-bs-target", "#carouselExample_" + i);
+        buttonprev.setAttribute("data-bs-slide", "prev");
+        const control_span = document.createElement("span");
+        control_span.className = "carousel-control-prev-icon";
+        control_span.setAttribute("aria-hidden", "true");
+        const control_span2 = document.createElement("span");
+        control_span2.className = "visually-hidden";
+        control_span2.innerText = "Previous";
+
+        control_span.appendChild(control_span2);
+        buttonprev.appendChild(control_span);
+        carousel.appendChild(buttonprev);
+
+        const buttonnext = document.createElement("button");
+        buttonnext.className = "carousel-control-next";
+        buttonnext.type = "button";
+        buttonnext.setAttribute("data-bs-target", "#carouselExample_" + i);
+        buttonnext.setAttribute("data-bs-slide", "next");
+        const control_span3 = document.createElement("span");
+        control_span3.className = "carousel-control-next-icon";
+        control_span3.setAttribute("aria-hidden", "true");
+        const control_span4 = document.createElement("span");
+        control_span4.className = "visually-hidden";
+        control_span4.innerText = "Next";
+
+        control_span3.appendChild(control_span4);
+        buttonnext.appendChild(control_span3);
+
+        carousel.appendChild(buttonnext);
+        carousel.appendChild(pulsar);
+
+        modelos.appendChild(carousel);
+
+        //guardar_localStorage(ttCarpeta,[1,1,1]);
     }
-  
-    carousel.appendChild(carousel_inner);
-  
-    const buttonprev = document.createElement("button");
-    buttonprev.className = "carousel-control-prev";
-    buttonprev.type = "button";
-    buttonprev.setAttribute("data-bs-target","#carouselExample_" + i);
-    buttonprev.setAttribute("data-bs-slide","prev");
-    const control_span =document.createElement("span");
-    control_span.className = "carousel-control-prev-icon";
-    control_span.setAttribute("aria-hidden","true");
-    const control_span2 =document.createElement("span");
-    control_span2.className = "visually-hidden";
-    control_span2.innerText = "Previous"
-  
-    control_span.appendChild(control_span2);
-    buttonprev.appendChild(control_span);
-    carousel.appendChild(buttonprev);
-  
-    const buttonnext = document.createElement("button");
-    buttonnext.className = "carousel-control-next";
-    buttonnext.type = "button";
-    buttonnext.setAttribute("data-bs-target","#carouselExample_"+ i);
-    buttonnext.setAttribute("data-bs-slide","next"); 
-    const control_span3 =document.createElement("span");
-    control_span3.className = "carousel-control-next-icon";
-    control_span3.setAttribute("aria-hidden","true");
-    const control_span4 =document.createElement("span");
-    control_span4.className = "visually-hidden";
-    control_span4.innerText = "Next"; 
-  
-    control_span3.appendChild(control_span4);
-    buttonnext.appendChild(control_span3);
-    
-    carousel.appendChild(buttonnext);
-    carousel.appendChild(pulsar);
-  
-    modelos.appendChild(carousel);
-
-    //guardar_localStorage(ttCarpeta,[1,1,1]);
-
-  }
-
 }
 
 function obtener_LocalStorage(){
 
   if(localStorage.getItem("datos")){
 
-     let galeria = JSON.parse(localStorage.getItem("datos"));
+    let galeria = JSON.parse(localStorage.getItem("datos"));
 
     console.log(galeria);
   }else{
@@ -225,7 +239,6 @@ function pasarPagina(galeria) {
     console.error('No se encontró ningún carrusel con el ID especificado.');
   }
 }
-
 
   /* levantar info de carpetas
   var cantCarpetas = 0;
