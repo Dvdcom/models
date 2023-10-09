@@ -1,6 +1,5 @@
 // Variable global para almacenar el contador de carpetas
-let contadorCarpetas = 0;
-let contadorFotos = 0;
+//utilizar variables de arreglos para las carpetas
 let nomCarpetas = [];
 let nomFotos = [];
 
@@ -21,25 +20,18 @@ async function contarCarpetas() {
     // Convertir la respuesta en un documento HTML
     const parser = new DOMParser();
     const doc = parser.parseFromString(data, 'text/html');
-    
+
     // Obtener una lista de elementos <a> que representan carpetas
-    const carpetas = doc.querySelectorAll('a.icon-directory');
     const nombresCarpetas = doc.querySelectorAll('span.name');
     nombresCarpetas.forEach((element,index)=>{
-      if (index > 0 ){
+      if (element.innerText !== '..' ){
         nomCarpetas.push(element.innerText);
       }
-    })
-    
-    // Contar las carpetas
-    contadorCarpetas = carpetas.length;
-    
-    
-    
+    });
+
     // Iterar sobre las carpetas para contar las fotos
-    for (let index = 1; index < contadorCarpetas; index++) {
-      const nuevaRuta = `./modelos/Modelo${index}`;
-      
+    for (let index = 0; index < nomCarpetas.length; index++) {
+      const nuevaRuta = ruta + '/' + nomCarpetas[index];
       try {
         const reta = await fetch(nuevaRuta);
         
@@ -52,24 +44,21 @@ async function contarCarpetas() {
         // Convertir la respuesta en un documento HTML
         const parser2 = new DOMParser();
         const docu = parser2.parseFromString(data2, 'text/html');
-        console.log(docu);
         // Obtener una lista de elementos <a> que representan fotos
-        const fotos = docu.querySelectorAll('a.icon-image');
         const nombres = docu.querySelectorAll('span.name');
         nombres.forEach((element) => {
               if (element.innerText !== '..' && element.innerText !== 'Descripcion.txt' ){
                 nomFotos.push(index + '|' + element.innerText);
               }
             });
-        // Contar las fotos y sumar al contador global
-        contadorFotos = fotos.length;
+
       } catch (error) {
         console.error('Error al contar fotos:', error);
       }
     }
     
     // Llamar a otra función que utiliza el contador de carpetas
-    CargarHtml(contadorCarpetas);
+    CargarHtml(nomCarpetas.length);
     
   } catch (error) {
     console.error('Error al contar carpetas:', error);
@@ -82,20 +71,10 @@ window.onload = contarCarpetas;
 //async function contarCarpetas(){
   function CargarHtml(ttCarpeta) {
 
-    nomFotos.forEach(element => {
-      console.log(element);
-  });
-
-    /*
-    nomCarpetas.forEach(element => {
-        console.log(element);
-    });
-    */
-
     //obtener_LocalStorage()
     const modelos = document.getElementById("modelos");
     //Crear carrouseles
-    for (let i = 1; i < ttCarpeta; i++) {
+    for (let i = 0; i < ttCarpeta; i++){
 
         //Creacion de carousel
         const carousel = document.createElement("div");
@@ -119,27 +98,32 @@ window.onload = contarCarpetas;
         });
         pulsar.appendChild(btn);
 
-        //creacion de fotos en caroyu
-        for (let index = 1; index < 5; index++) {
-            var item = document.createElement("div");
+        var x = 0
+        nomFotos.forEach(element => {
 
-            if (index === 1) {
-                item.className = "carousel-item active";
-            } else {
-                item.className = "carousel-item";
+          var nombreFoto = element.split('|'); 
+            
+            if (parseInt(nombreFoto[0]) === i) {
+              var item = document.createElement("div");
+              if (x == 0) {
+                  item.className = "carousel-item active";
+              } else {
+                  item.className = "carousel-item";
+              }
+              x=1;
+              var foto = document.createElement("img");
+              var sruta = ruta + '/' + nomCarpetas[i] + '/' + nombreFoto[1];
+              foto.src = sruta;
+              foto.className = "d-block";
+              foto.alt = nombreFoto[1];
+              foto.setAttribute("width", "200px");
+              foto.setAttribute("height", "250px");
+              item.appendChild(foto);
+              carousel_inner.appendChild(item);
             }
-            var foto = document.createElement("img");
-            var ruta = "/modelos/Modelo" + i + "/Foto" + index + ".png";
-            foto.src = ruta;
-            foto.className = "d-block";
-            foto.alt = "Foto" + index;
-            foto.setAttribute("width", "200px");
-            foto.setAttribute("height", "250px");
-            item.appendChild(foto);
-
-            carousel_inner.appendChild(item);
-        }
-
+          
+        });
+        
         carousel.appendChild(carousel_inner);
 
         const buttonprev = document.createElement("button");
