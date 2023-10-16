@@ -3,7 +3,6 @@
 let nomCarpetas = [];
 let nomFotos = [];
 let descripciones = [];
-let seleccion = "";
 
 // Ruta local de la carpeta que deseas contar
 const ruta = './modelos';
@@ -30,7 +29,6 @@ async function contarCarpetas() {
         nomCarpetas.push(element.innerText);
       }
     });
-
     // Iterar sobre las carpetas para contar las fotos
     for (let index = 0; index < nomCarpetas.length; index++) {
       const nuevaRuta = ruta + '/' + nomCarpetas[index];
@@ -58,18 +56,15 @@ async function contarCarpetas() {
           }
         });
 
-      } catch (error) {
-        console.error('Error al contar fotos:', error);
+      } catch (error2) {
+        console.error('Error al contar fotos:', error2);
       }
     }
-
     // Llamar a otra función que utiliza el contador de carpetas
     CargarHtml(nomCarpetas.length);
-
-  } catch (error) {
-    console.error('Error al contar carpetas:', error);
+  } catch (error1) {
+    console.error('Error al contar carpetas:', error1);
   }
-
 }
 
 // Llamar a la función para contar carpetas cuando se cargue la página
@@ -92,6 +87,7 @@ function CargarHtml(ttCarpeta) {
     });
     const carousel_inner = document.createElement("div");
     carousel_inner.className = "carousel-inner";
+    carousel_inner.id = i;
     carousel_inner.addEventListener('click', function () {
       seleccionarModelo(i);
     })
@@ -185,11 +181,6 @@ function guardar_localStorage(cant, pos) {
   localStorage.setItem("datos", JSON.stringify(galeria));
 }
 
-
-function copiar(element) {
-  console.log("la galeria seleccionada es : " + element)
-}
-
 function pasarPagina(galeria) {
   // Convierte el número en una cadena
   const galeriaString = galeria.toString();
@@ -208,8 +199,7 @@ function pasarPagina(galeria) {
 
       if (imagenActiva) {
         // Hacer algo con la imagen activa (por ejemplo, acceder a su atributo src)
-        const alt = imagenActiva.alt;
-        console.log('Galeria ' + galeria + ' y la imagen activa es: ', alt, ' su ruta es: ' + imagenActiva.src);
+        //img = imagenActiva.src;
       } else {
         console.error('No se encontró ninguna imagen en el elemento activo del carrusel.');
       }
@@ -224,7 +214,8 @@ function pasarPagina(galeria) {
 //problema de lanzamiento , descripciones se cargan erroneamente
 
 function seleccionarModelo(carousel) {
-  i = parseInt(carousel)
+  let rutaImagen = ""
+  let i = parseInt(carousel)
   let texto = descripciones[i];
   document.querySelector('.texto-d').innerHTML = texto;
   let todos = document.querySelectorAll('.carousel-inner');
@@ -235,57 +226,48 @@ function seleccionarModelo(carousel) {
       element.style.cssText = 'border: 1px solid rgb(201, 100, 128);';
     }
   });
-  //trabajar en este proceso 
 
-  const urlImagen = "./modelos/Modelo1/Foto1.png";
+  //descular imagen
+  let fotos = document.querySelectorAll('.carousel-item.active');
+  fotos.forEach(element => {
+      const padre = element.parentNode;
+      if(i === parseInt(padre.id)){
+        const url = element.children;
+        rutaImagen = url[0].src;
+      }
+  });
 
-      fetch(urlImagen)
-      .then(response => response.blob())
-      .then(blob => {
-          // Crear un nuevo Blob que contenga tanto la imagen como el texto
-          const blobImagenYTexto = new Blob([blob, texto], { type: "text/html" });
+  //crear html temporal
+  const divTemporal = document.createElement('div');
+  //divTemporal.className = 'imgGuardar';
+  divTemporal.style.display = 'none';
+  const imgTemporal = document.createElement('img');
+  imgTemporal.alt = 'img-temp';
+  imgTemporal.src = rutaImagen;
 
-          // Copiar el Blob resultante al portapapeles
-          navigator.clipboard.write([new ClipboardItem({ "text/html": blobImagenYTexto })])
-              .then(function() {
-                  console.log("Imagen y texto copiados al portapapeles.");
-              })
-              .catch(function(err) {
-                  console.error("Error al copiar la imagen y el texto: ", err);
-              });
+  const pTemporal = document.createElement('p');
+  pTemporal.innerText = texto;
+
+  divTemporal.appendChild(imgTemporal);
+  divTemporal.appendChild(pTemporal);
+
+  document.body.appendChild(divTemporal);
+
+  const contenidoHTML = divTemporal.innerHTML;
+
+  // Crear un Blob a partir del contenido HTML
+  const blob = new Blob([contenidoHTML], { type: "text/html" });
+  const itemHTML = new ClipboardItem({ "text/html": blob });
+
+  // Copiar el archivo HTML al portapapeles
+  navigator.clipboard.write([itemHTML])
+      .then(function() {
+          console.log("Archivo HTML copiado al portapapeles.");
       })
       .catch(function(err) {
-          console.error("Error al copiar la imagen: ", err);
+          console.error("Error al copiar el archivo HTML: ", err);
       });
 
-}
+      document.body.removeChild(divTemporal);
+};
 
-/*
-document.getElementById("copiarImagenYTexto").addEventListener("click", function() {
-    const urlImagen = "./modelos/Modelo1/Foto1.png";
-    const textoACopiar = "Texto a copiar junto con la imagen";
-
-    // Crear un archivo HTML que incluye la imagen y el texto
-    const contenidoHTML = `
-        <html>
-            <body>
-                <img src="${urlImagen}" alt="Imagen">
-                <p>${textoACopiar}</p>
-            </body>
-        </html>
-    `;
-
-    // Crear un Blob a partir del contenido HTML
-    const blob = new Blob([contenidoHTML], { type: "text/html" });
-    const itemHTML = new ClipboardItem({ "text/html": blob });
-
-    // Copiar el archivo HTML al portapapeles
-    navigator.clipboard.write([itemHTML])
-        .then(function() {
-            console.log("Archivo HTML copiado al portapapeles.");
-        })
-        .catch(function(err) {
-            console.error("Error al copiar el archivo HTML: ", err);
-        });
-});
-*/
