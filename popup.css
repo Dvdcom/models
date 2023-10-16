@@ -4,13 +4,14 @@ body{
     background-color: #232323 !important;
     color: #b3b3b3 !important;
     display: grid;
-    grid-template-rows: auto 1fr auto auto;
+    grid-template-rows: auto 280px auto auto;
     width: 650px;
     height: 500px;  
     overflow: hidden;
 }
 
 .titulo{
+
     text-align: center;
     margin: 0px;
     margin-top: 15px;
@@ -31,18 +32,18 @@ body{
     padding-left: 10px;
     padding-right: 10px;
     padding-top: 10px;  
-    height: 315px !important;
+    height: 270px !important;
 }
 
 .carousel{
-    display: grid;
-    grid-template-rows: 1fr auto;
+    display: flex;
+    flex-direction: row;
     justify-content: center;
-    align-items: center;
     width: 200px !important;
     height: 250px !important;
     margin-left: 5px !important;
     margin-right: 5px !important;
+    
 }
 
 .c-btn-pulsar{
@@ -56,7 +57,6 @@ body{
 .btn{
     color: rgb(201, 100, 128) !important;
     border-color: rgb(201, 100, 128) !important;
-    
 }
 
 .carousel-inner{
@@ -67,7 +67,7 @@ body{
 }
 
 .descripcion{
-    margin-top: 8px;
+    margin-top: 5px;
     margin-bottom: 10px;
     display: flex;
     justify-content: center;

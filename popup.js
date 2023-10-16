@@ -2,6 +2,8 @@
 //utilizar variables de arreglos para las carpetas
 let nomCarpetas = [];
 let nomFotos = [];
+let descripciones = [];
+let seleccion = "";
 
 // Ruta local de la carpeta que deseas contar
 const ruta = './modelos';
@@ -10,21 +12,21 @@ const ruta = './modelos';
 async function contarCarpetas() {
   try {
     const response = await fetch(ruta);
-    
+
     if (!response.ok) {
       throw new Error('Error al obtener la lista de archivos.');
     }
-    
+
     const data = await response.text();
-    
+
     // Convertir la respuesta en un documento HTML
     const parser = new DOMParser();
     const doc = parser.parseFromString(data, 'text/html');
 
     // Obtener una lista de elementos <a> que representan carpetas
     const nombresCarpetas = doc.querySelectorAll('span.name');
-    nombresCarpetas.forEach((element,index)=>{
-      if (element.innerText !== '..' ){
+    nombresCarpetas.forEach((element, index) => {
+      if (element.innerText !== '..') {
         nomCarpetas.push(element.innerText);
       }
     });
@@ -32,187 +34,182 @@ async function contarCarpetas() {
     // Iterar sobre las carpetas para contar las fotos
     for (let index = 0; index < nomCarpetas.length; index++) {
       const nuevaRuta = ruta + '/' + nomCarpetas[index];
+      const nomRutas = ruta + '/' + nomCarpetas[index] + '/Descripcion.txt'
       try {
         const reta = await fetch(nuevaRuta);
-        
+        const res = await fetch(nomRutas);
+        const content = await res.text();
+        descripciones.push(content);
+
         if (!reta.ok) {
           throw new Error('Error al obtener la lista de archivos.');
         }
-        
+
         const data2 = await reta.text();
-        
+
         // Convertir la respuesta en un documento HTML
         const parser2 = new DOMParser();
         const docu = parser2.parseFromString(data2, 'text/html');
         // Obtener una lista de elementos <a> que representan fotos
         const nombres = docu.querySelectorAll('span.name');
         nombres.forEach((element) => {
-              if (element.innerText !== '..' && element.innerText !== 'Descripcion.txt' ){
-                nomFotos.push(index + '|' + element.innerText);
-              }
-            });
+          if (element.innerText !== '..' && element.innerText !== 'Descripcion.txt') {
+            nomFotos.push(index + '|' + element.innerText);
+          }
+        });
 
       } catch (error) {
         console.error('Error al contar fotos:', error);
       }
     }
-    
+
     // Llamar a otra función que utiliza el contador de carpetas
     CargarHtml(nomCarpetas.length);
-    
+
   } catch (error) {
     console.error('Error al contar carpetas:', error);
   }
+
 }
 
 // Llamar a la función para contar carpetas cuando se cargue la página
 window.onload = contarCarpetas;
 
 //async function contarCarpetas(){
-  function CargarHtml(ttCarpeta) {
+function CargarHtml(ttCarpeta) {
 
-    //obtener_LocalStorage()
-    const modelos = document.getElementById("modelos");
-    //Crear carrouseles
-    for (let i = 0; i < ttCarpeta; i++){
+  //obtener_LocalStorage()
+  const modelos = document.getElementById("modelos");
+  //Crear carrouseles
+  for (let i = 0; i < ttCarpeta; i++) {
 
-        //Creacion de carousel
-        const carousel = document.createElement("div");
-        carousel.id = "carouselExample_" + i;
-        carousel.className = "carousel slide carousel-fade";
-        carousel.addEventListener('slid.bs.carousel', function () {
-            pasarPagina(i);
-        });
-        const carousel_inner = document.createElement("div");
-        carousel_inner.className = "carousel-inner";
+    //Creacion de carousel
+    const carousel = document.createElement("div");
+    carousel.id = "carouselExample_" + i;
+    carousel.className = "carousel slide carousel-fade";
+    carousel.addEventListener('slid.bs.carousel', function () {
+      pasarPagina(i);
+    });
+    const carousel_inner = document.createElement("div");
+    carousel_inner.className = "carousel-inner";
+    carousel_inner.addEventListener('click', function () {
+      seleccionarModelo(i);
+    })
 
-        //Creacion de boton 
-        const pulsar = document.createElement("div");
-        pulsar.className = "c-btn-pulsar";
-        const btn = document.createElement("button");
-        btn.className = "btn btn-outline-light";
-        btn.type = "button";
-        btn.innerText = "Copiar";
-        btn.addEventListener("click", function () {
-            copiar(i);
-        });
-        pulsar.appendChild(btn);
 
-        var x = 0
-        nomFotos.forEach(element => {
+    var x = 0
+    nomFotos.forEach(element => {
 
-          var nombreFoto = element.split('|'); 
-            
-            if (parseInt(nombreFoto[0]) === i) {
-              var item = document.createElement("div");
-              if (x == 0) {
-                  item.className = "carousel-item active";
-              } else {
-                  item.className = "carousel-item";
-              }
-              x=1;
-              var foto = document.createElement("img");
-              var sruta = ruta + '/' + nomCarpetas[i] + '/' + nombreFoto[1];
-              foto.src = sruta;
-              foto.className = "d-block";
-              foto.alt = nombreFoto[1];
-              foto.setAttribute("width", "200px");
-              foto.setAttribute("height", "250px");
-              item.appendChild(foto);
-              carousel_inner.appendChild(item);
-            }
-          
-        });
-        
-        carousel.appendChild(carousel_inner);
+      var nombreFoto = element.split('|');
 
-        const buttonprev = document.createElement("button");
-        buttonprev.className = "carousel-control-prev";
-        buttonprev.type = "button";
-        buttonprev.setAttribute("data-bs-target", "#carouselExample_" + i);
-        buttonprev.setAttribute("data-bs-slide", "prev");
-        const control_span = document.createElement("span");
-        control_span.className = "carousel-control-prev-icon";
-        control_span.setAttribute("aria-hidden", "true");
-        const control_span2 = document.createElement("span");
-        control_span2.className = "visually-hidden";
-        control_span2.innerText = "Previous";
+      if (parseInt(nombreFoto[0]) === i) {
+        var item = document.createElement("div");
+        if (x == 0) {
+          item.className = "carousel-item active";
+        } else {
+          item.className = "carousel-item";
+        }
+        x = 1;
+        var foto = document.createElement("img");
+        var sruta = ruta + '/' + nomCarpetas[i] + '/' + nombreFoto[1];
+        foto.src = sruta;
+        foto.className = "d-block";
+        foto.alt = nombreFoto[1];
+        foto.setAttribute("width", "200px");
+        foto.setAttribute("height", "250px");
+        item.appendChild(foto);
+        carousel_inner.appendChild(item);
+      }
 
-        control_span.appendChild(control_span2);
-        buttonprev.appendChild(control_span);
-        carousel.appendChild(buttonprev);
+    });
 
-        const buttonnext = document.createElement("button");
-        buttonnext.className = "carousel-control-next";
-        buttonnext.type = "button";
-        buttonnext.setAttribute("data-bs-target", "#carouselExample_" + i);
-        buttonnext.setAttribute("data-bs-slide", "next");
-        const control_span3 = document.createElement("span");
-        control_span3.className = "carousel-control-next-icon";
-        control_span3.setAttribute("aria-hidden", "true");
-        const control_span4 = document.createElement("span");
-        control_span4.className = "visually-hidden";
-        control_span4.innerText = "Next";
+    carousel.appendChild(carousel_inner);
 
-        control_span3.appendChild(control_span4);
-        buttonnext.appendChild(control_span3);
+    const buttonprev = document.createElement("button");
+    buttonprev.className = "carousel-control-prev";
+    buttonprev.type = "button";
+    buttonprev.setAttribute("data-bs-target", "#carouselExample_" + i);
+    buttonprev.setAttribute("data-bs-slide", "prev");
+    const control_span = document.createElement("span");
+    control_span.className = "carousel-control-prev-icon";
+    control_span.setAttribute("aria-hidden", "true");
+    const control_span2 = document.createElement("span");
+    control_span2.className = "visually-hidden";
+    control_span2.innerText = "Previous";
 
-        carousel.appendChild(buttonnext);
-        carousel.appendChild(pulsar);
+    control_span.appendChild(control_span2);
+    buttonprev.appendChild(control_span);
+    carousel.appendChild(buttonprev);
 
-        modelos.appendChild(carousel);
+    const buttonnext = document.createElement("button");
+    buttonnext.className = "carousel-control-next";
+    buttonnext.type = "button";
+    buttonnext.setAttribute("data-bs-target", "#carouselExample_" + i);
+    buttonnext.setAttribute("data-bs-slide", "next");
+    const control_span3 = document.createElement("span");
+    control_span3.className = "carousel-control-next-icon";
+    control_span3.setAttribute("aria-hidden", "true");
+    const control_span4 = document.createElement("span");
+    control_span4.className = "visually-hidden";
+    control_span4.innerText = "Next";
 
-        //guardar_localStorage(ttCarpeta,[1,1,1]);
-    }
+    control_span3.appendChild(control_span4);
+    buttonnext.appendChild(control_span3);
+    carousel.appendChild(buttonnext);
+
+    modelos.appendChild(carousel);
+
+    //guardar_localStorage(ttCarpeta,[1,1,1]);
+  }
 }
 
-function obtener_LocalStorage(){
+function obtener_LocalStorage() {
 
-  if(localStorage.getItem("datos")){
+  if (localStorage.getItem("datos")) {
 
     let galeria = JSON.parse(localStorage.getItem("datos"));
 
     console.log(galeria);
-  }else{
+  } else {
     console.log('no hay entrada de local storage');
   }
-  
+
 }
 
-function guardar_localStorage(cant,pos){
+function guardar_localStorage(cant, pos) {
   let galeria = {
-    Cant_Galerias : cant,
-    posiciones : pos,  
+    Cant_Galerias: cant,
+    posiciones: pos,
   }
 
-  localStorage.setItem("datos",JSON.stringify(galeria));
+  localStorage.setItem("datos", JSON.stringify(galeria));
 }
 
 
-function copiar(element){
-    console.log("la galeria seleccionada es : " + element)
+function copiar(element) {
+  console.log("la galeria seleccionada es : " + element)
 }
 
 function pasarPagina(galeria) {
   // Convierte el número en una cadena
   const galeriaString = galeria.toString();
-  
+
   const idCarrusel = 'carouselExample_' + galeriaString;
   // Busca el carrusel activo utilizando el ID construido
   const carruselActivo = document.querySelector(`#${idCarrusel}.carousel`);
-  
+
   if (carruselActivo) {
     // Encontrar el elemento "carousel-item" activo dentro del carrusel
     const itemActivo = carruselActivo.querySelector('.carousel-item.active');
-    
+
     if (itemActivo) {
       // Encontrar la imagen "img" dentro del elemento "carousel-item" activo
       const imagenActiva = itemActivo.querySelector('img');
-      
+
       if (imagenActiva) {
         // Hacer algo con la imagen activa (por ejemplo, acceder a su atributo src)
         const alt = imagenActiva.alt;
-        console.log('Galeria ' + galeria + ' y la imagen activa es: ', alt , ' su ruta es: ' + imagenActiva.src);
+        console.log('Galeria ' + galeria + ' y la imagen activa es: ', alt, ' su ruta es: ' + imagenActiva.src);
       } else {
         console.error('No se encontró ninguna imagen en el elemento activo del carrusel.');
       }
@@ -224,32 +221,71 @@ function pasarPagina(galeria) {
   }
 }
 
-  /* levantar info de carpetas
-  var cantCarpetas = 0;
-  var rutas = [];
-  var descripciones = []
- */
+//problema de lanzamiento , descripciones se cargan erroneamente
 
-  /*
-  await fetch('config/Cantidad_de_Modelos.txt')
-  .then(res => res.text())
-  .then(content => {
-    let lines = content.split(/\n/);
-    lines.forEach(line => cantCarpetas = line);
+function seleccionarModelo(carousel) {
+  i = parseInt(carousel)
+  let texto = descripciones[i];
+  document.querySelector('.texto-d').innerHTML = texto;
+  let todos = document.querySelectorAll('.carousel-inner');
+  todos.forEach((element, index) => {
+    if (index === i) {
+      element.style.cssText = 'border: 1px solid white;';
+    } else {
+      element.style.cssText = 'border: 1px solid rgb(201, 100, 128);';
+    }
   });
-  
+  //trabajar en este proceso 
 
-  for (var i = 1; i < ttCarpeta; i++) {
-    rutas.push("/modelos/Modelo" + i + "/Descripcion.txt");
-  }
+  const urlImagen = "./modelos/Modelo1/Foto1.png";
 
-  await Promise.all(
-    rutas.map(async (element) => {
-      const res = await fetch(element);
-      const content = await res.text();
-      let lines = content.split(/\n/);
-      lines.forEach((line) => descripciones.push(line));
-    })
-  );
-  */
-  //crear json con informacion
+      fetch(urlImagen)
+      .then(response => response.blob())
+      .then(blob => {
+          // Crear un nuevo Blob que contenga tanto la imagen como el texto
+          const blobImagenYTexto = new Blob([blob, texto], { type: "text/html" });
+
+          // Copiar el Blob resultante al portapapeles
+          navigator.clipboard.write([new ClipboardItem({ "text/html": blobImagenYTexto })])
+              .then(function() {
+                  console.log("Imagen y texto copiados al portapapeles.");
+              })
+              .catch(function(err) {
+                  console.error("Error al copiar la imagen y el texto: ", err);
+              });
+      })
+      .catch(function(err) {
+          console.error("Error al copiar la imagen: ", err);
+      });
+
+}
+
+/*
+document.getElementById("copiarImagenYTexto").addEventListener("click", function() {
+    const urlImagen = "./modelos/Modelo1/Foto1.png";
+    const textoACopiar = "Texto a copiar junto con la imagen";
+
+    // Crear un archivo HTML que incluye la imagen y el texto
+    const contenidoHTML = `
+        <html>
+            <body>
+                <img src="${urlImagen}" alt="Imagen">
+                <p>${textoACopiar}</p>
+            </body>
+        </html>
+    `;
+
+    // Crear un Blob a partir del contenido HTML
+    const blob = new Blob([contenidoHTML], { type: "text/html" });
+    const itemHTML = new ClipboardItem({ "text/html": blob });
+
+    // Copiar el archivo HTML al portapapeles
+    navigator.clipboard.write([itemHTML])
+        .then(function() {
+            console.log("Archivo HTML copiado al portapapeles.");
+        })
+        .catch(function(err) {
+            console.error("Error al copiar el archivo HTML: ", err);
+        });
+});
+*/
