@@ -12,25 +12,31 @@ async function contarCarpetas() {
     const modelsDir = await getDirectory(root, './modelos');
     const entries = await readEntries(modelsDir);
     const carpetas = entries.filter(entry => entry.isDirectory);
+
     for (const element of carpetas) {
       nomCarpetas.push(element.name);
-    }
 
-    await Promise.all(nomCarpetas.map(async (element) => {
-      const newRuta = './modelos/' + element;
+      const newRuta = './modelos/' + element.name;
       const modelosDir = await getDirectory(root, newRuta);
       const fotoEntries = await readEntries(modelosDir);
-      const fotos = fotoEntries.filter(entry => entry.isDirectory);
-      for (const foto of fotos) {
-        nomFotos.push(currentIndex + '|' + foto.name);
-        currentIndex++;
+      const fotos = fotoEntries.filter(entry => entry.isFile);
+      const descripcionFile = fotos.find(foto => foto.name === 'Descripcion.txt');
+
+      if (descripcionFile) {
+        const contenido = await readFile(descripcionFile);
+        descripciones.push(contenido);
       }
-    }));
-    
-    nomFotos.forEach(element => {
-      console.log(element);
-    });
+
+  	  fotos.map(foto => {
+        if (foto.name !== 'Descripcion.txt'){
+          nomFotos.push(currentIndex + '|' + foto.name);
+        }
+      });
+      currentIndex++;
+    }
     // Ahora puedes llamar a otra función que utiliza los resultados
+    CargarHtml(carpetas.length);
+
   } catch (error) {
     console.error('Error al contar carpetas:', error);
   }
@@ -61,31 +67,38 @@ function readEntries(directory) {
   });
 }
 
-// Llamar a la función para contar carpetas cuando se cargue la página
-window.onload = contarCarpetas;
-        /* Verificar si se encontraron carpetas y fotos
-        if (carpetas.length > 0) {
-          console.log('Carpetas:', carpetas);
-        } else {
-          console.log('No se encontraron carpetas.');
-        }
-
-        if (fotos.length > 0) {
-          console.log('Fotos:', fotos);
-        } else {
-          console.log('No se encontraron fotos.');
-        }
-      }, function (error) {
-        console.error('Error al leer las entradas del directorio:', error);
-      });
-    }, function (error) {
-      console.error('Error al acceder al directorio "models":', error);
+/*
+async function readFile(fileEntry) {
+  return new Promise((resolve, reject) => {
+    fileEntry.file((file) => {
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        resolve(event.target.result);
+      };
+      reader.onerror = (error) => {
+        reject(error);
+      };
+      reader.readAsText(file);
     });
   });
-  */
+}
+*/
+function readFile(fileEntry, callback) {
+  fileEntry.file(function (file) {
+    var reader = new FileReader();
+    reader.onload = function (event) {
+      var content = event.target.result;
+      callback(content);
+    };
+    reader.onerror = function (error) {
+      console.error('Error al leer el archivo: ', error);
+    };
+    reader.readAsText(file);
+  });
+}
 
-
-
+// Llamar a la función para contar carpetas cuando se cargue la página
+window.onload = contarCarpetas;
 
 //async function contarCarpetas(){
 function CargarHtml(ttCarpeta) {
@@ -124,7 +137,7 @@ function CargarHtml(ttCarpeta) {
         }
         x = 1;
         var foto = document.createElement("img");
-        var sruta = ruta + '/' + nomCarpetas[i] + '/' + nombreFoto[1];
+        var sruta = './modelos/' + nomCarpetas[i] + '/' + nombreFoto[1];
         foto.src = sruta;
         foto.className = "d-block";
         foto.alt = nombreFoto[1];
@@ -285,6 +298,26 @@ function seleccionarModelo(carousel) {
       console.error("Error al copiar el archivo HTML: ", err);
     });
 
-  document.body.removeChild(divTemporal);
+ //document.body.removeChild(divTemporal);
 };
 
+        /* Verificar si se encontraron carpetas y fotos
+        if (carpetas.length > 0) {
+          console.log('Carpetas:', carpetas);
+        } else {
+          console.log('No se encontraron carpetas.');
+        }
+
+        if (fotos.length > 0) {
+          console.log('Fotos:', fotos);
+        } else {
+          console.log('No se encontraron fotos.');
+        }
+      }, function (error) {
+        console.error('Error al leer las entradas del directorio:', error);
+      });
+    }, function (error) {
+      console.error('Error al acceder al directorio "models":', error);
+    });
+  });
+  */
