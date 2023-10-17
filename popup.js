@@ -3,22 +3,67 @@
 let nomCarpetas = [];
 let nomFotos = [];
 let descripciones = [];
+let currentIndex = 0;
 
-// Función para contar carpetas y fotos
-function contarCarpetas() {
-  chrome.runtime.getPackageDirectoryEntry(function (root) {
-    root.getDirectory('./modelos', {}, function (modelsDir) {
-      var reader = modelsDir.createReader();
-      reader.readEntries(function (entries) {
-        var carpetas = entries.filter(function (entry) {
-          return entry.isDirectory;
-        });
+async function contarCarpetas() {
+  try {
+    const root = await getPackageDirectoryEntry();
 
-        var fotos = entries.filter(function (entry) {
-          return entry.isFile && entry.name !== 'Descripcion.txt';
-        });
+    const modelsDir = await getDirectory(root, './modelos');
+    const entries = await readEntries(modelsDir);
+    const carpetas = entries.filter(entry => entry.isDirectory);
+    for (const element of carpetas) {
+      nomCarpetas.push(element.name);
+    }
 
-        // Verificar si se encontraron carpetas y fotos
+    await Promise.all(nomCarpetas.map(async (element) => {
+      const newRuta = './modelos/' + element;
+      const modelosDir = await getDirectory(root, newRuta);
+      const fotoEntries = await readEntries(modelosDir);
+      const fotos = fotoEntries.filter(entry => entry.isDirectory);
+      for (const foto of fotos) {
+        nomFotos.push(currentIndex + '|' + foto.name);
+        currentIndex++;
+      }
+    }));
+    
+    nomFotos.forEach(element => {
+      console.log(element);
+    });
+    // Ahora puedes llamar a otra función que utiliza los resultados
+  } catch (error) {
+    console.error('Error al contar carpetas:', error);
+  }
+}
+
+function getPackageDirectoryEntry() {
+  return new Promise((resolve, reject) => {
+    chrome.runtime.getPackageDirectoryEntry(root => {
+      if (chrome.runtime.lastError) {
+        reject(chrome.runtime.lastError);
+      } else {
+        resolve(root);
+      }
+    });
+  });
+}
+
+function getDirectory(root, path) {
+  return new Promise((resolve, reject) => {
+    root.getDirectory(path, {}, dir => resolve(dir), reject);
+  });
+}
+
+function readEntries(directory) {
+  return new Promise((resolve, reject) => {
+    const reader = directory.createReader();
+    reader.readEntries(entries => resolve(entries), reject);
+  });
+}
+
+// Llamar a la función para contar carpetas cuando se cargue la página
+window.onload = contarCarpetas;
+        /* Verificar si se encontraron carpetas y fotos
         if (carpetas.length > 0) {
           console.log('Carpetas:', carpetas);
         } else {
@@ -37,13 +82,10 @@ function contarCarpetas() {
       console.error('Error al acceder al directorio "models":', error);
     });
   });
-}
+  */
 
-// Llamar a la función para contar carpetas cuando se cargue la página
-window.onload = contarCarpetas;
 
-// Llamar a la función para contar carpetas cuando se cargue la página
-window.onload = contarCarpetas;
+
 
 //async function contarCarpetas(){
 function CargarHtml(ttCarpeta) {
