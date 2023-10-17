@@ -4,68 +4,43 @@ let nomCarpetas = [];
 let nomFotos = [];
 let descripciones = [];
 
-// Ruta local de la carpeta que deseas contar
-const ruta = './modelos';
-
 // Función para contar carpetas y fotos
-async function contarCarpetas() {
-  try {
-    const response = await fetch(ruta);
-
-    if (!response.ok) {
-      throw new Error('Error al obtener la lista de archivos.');
-    }
-
-    const data = await response.text();
-
-    // Convertir la respuesta en un documento HTML
-    const parser = new DOMParser();
-    const doc = parser.parseFromString(data, 'text/html');
-
-    // Obtener una lista de elementos <a> que representan carpetas
-    const nombresCarpetas = doc.querySelectorAll('span.name');
-    nombresCarpetas.forEach((element, index) => {
-      if (element.innerText !== '..') {
-        nomCarpetas.push(element.innerText);
-      }
-    });
-    // Iterar sobre las carpetas para contar las fotos
-    for (let index = 0; index < nomCarpetas.length; index++) {
-      const nuevaRuta = ruta + '/' + nomCarpetas[index];
-      const nomRutas = ruta + '/' + nomCarpetas[index] + '/Descripcion.txt'
-      try {
-        const reta = await fetch(nuevaRuta);
-        const res = await fetch(nomRutas);
-        const content = await res.text();
-        descripciones.push(content);
-
-        if (!reta.ok) {
-          throw new Error('Error al obtener la lista de archivos.');
-        }
-
-        const data2 = await reta.text();
-
-        // Convertir la respuesta en un documento HTML
-        const parser2 = new DOMParser();
-        const docu = parser2.parseFromString(data2, 'text/html');
-        // Obtener una lista de elementos <a> que representan fotos
-        const nombres = docu.querySelectorAll('span.name');
-        nombres.forEach((element) => {
-          if (element.innerText !== '..' && element.innerText !== 'Descripcion.txt') {
-            nomFotos.push(index + '|' + element.innerText);
-          }
+function contarCarpetas() {
+  chrome.runtime.getPackageDirectoryEntry(function (root) {
+    root.getDirectory('./modelos', {}, function (modelsDir) {
+      var reader = modelsDir.createReader();
+      reader.readEntries(function (entries) {
+        var carpetas = entries.filter(function (entry) {
+          return entry.isDirectory;
         });
 
-      } catch (error2) {
-        console.error('Error al contar fotos:', error2);
-      }
-    }
-    // Llamar a otra función que utiliza el contador de carpetas
-    CargarHtml(nomCarpetas.length);
-  } catch (error1) {
-    console.error('Error al contar carpetas:', error1);
-  }
+        var fotos = entries.filter(function (entry) {
+          return entry.isFile && entry.name !== 'Descripcion.txt';
+        });
+
+        // Verificar si se encontraron carpetas y fotos
+        if (carpetas.length > 0) {
+          console.log('Carpetas:', carpetas);
+        } else {
+          console.log('No se encontraron carpetas.');
+        }
+
+        if (fotos.length > 0) {
+          console.log('Fotos:', fotos);
+        } else {
+          console.log('No se encontraron fotos.');
+        }
+      }, function (error) {
+        console.error('Error al leer las entradas del directorio:', error);
+      });
+    }, function (error) {
+      console.error('Error al acceder al directorio "models":', error);
+    });
+  });
 }
+
+// Llamar a la función para contar carpetas cuando se cargue la página
+window.onload = contarCarpetas;
 
 // Llamar a la función para contar carpetas cuando se cargue la página
 window.onload = contarCarpetas;
@@ -230,11 +205,11 @@ function seleccionarModelo(carousel) {
   //descular imagen
   let fotos = document.querySelectorAll('.carousel-item.active');
   fotos.forEach(element => {
-      const padre = element.parentNode;
-      if(i === parseInt(padre.id)){
-        const url = element.children;
-        rutaImagen = url[0].src;
-      }
+    const padre = element.parentNode;
+    if (i === parseInt(padre.id)) {
+      const url = element.children;
+      rutaImagen = url[0].src;
+    }
   });
 
   //crear html temporal
@@ -261,13 +236,13 @@ function seleccionarModelo(carousel) {
 
   // Copiar el archivo HTML al portapapeles
   navigator.clipboard.write([itemHTML])
-      .then(function() {
-          console.log("Archivo HTML copiado al portapapeles.");
-      })
-      .catch(function(err) {
-          console.error("Error al copiar el archivo HTML: ", err);
-      });
+    .then(function () {
+      console.log("Archivo HTML copiado al portapapeles.");
+    })
+    .catch(function (err) {
+      console.error("Error al copiar el archivo HTML: ", err);
+    });
 
-      document.body.removeChild(divTemporal);
+  document.body.removeChild(divTemporal);
 };
 

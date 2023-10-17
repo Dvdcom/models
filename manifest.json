@@ -6,9 +6,6 @@
     "icons": {
     "128": "icon/modelo.png"
     },
-    "permissions": [
-    "file:///*"
-    ],
     "action": {
     "default_popup": "popup.html"
     }
