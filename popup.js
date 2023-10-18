@@ -27,7 +27,7 @@ async function contarCarpetas() {
         descripciones.push(contenido);
       }
 
-  	  fotos.map(foto => {
+      fotos.map(foto => {
         if (foto.name !== 'Descripcion.txt'){
           nomFotos.push(currentIndex + '|' + foto.name);
         }
@@ -67,33 +67,19 @@ function readEntries(directory) {
   });
 }
 
-/*
-async function readFile(fileEntry) {
+function readFile(fileEntry) {
   return new Promise((resolve, reject) => {
-    fileEntry.file((file) => {
-      const reader = new FileReader();
-      reader.onload = (event) => {
-        resolve(event.target.result);
+    fileEntry.file(function (file) {
+      var reader = new FileReader();
+      reader.onload = function (event) {
+        var content = event.target.result;
+        resolve(content);
       };
-      reader.onerror = (error) => {
+      reader.onerror = function (error) {
         reject(error);
       };
       reader.readAsText(file);
     });
-  });
-}
-*/
-function readFile(fileEntry, callback) {
-  fileEntry.file(function (file) {
-    var reader = new FileReader();
-    reader.onload = function (event) {
-      var content = event.target.result;
-      callback(content);
-    };
-    reader.onerror = function (error) {
-      console.error('Error al leer el archivo: ', error);
-    };
-    reader.readAsText(file);
   });
 }
 
@@ -263,13 +249,13 @@ function seleccionarModelo(carousel) {
     const padre = element.parentNode;
     if (i === parseInt(padre.id)) {
       const url = element.children;
-      rutaImagen = url[0].src;
+      rutaImagen = './modelos/' + nomCarpetas[i] + '/' + url[0].alt;
+      //console.log(rutaImagen);
     }
   });
 
   //crear html temporal
   const divTemporal = document.createElement('div');
-  //divTemporal.className = 'imgGuardar';
   divTemporal.style.display = 'none';
   const imgTemporal = document.createElement('img');
   imgTemporal.alt = 'img-temp';
@@ -298,7 +284,7 @@ function seleccionarModelo(carousel) {
       console.error("Error al copiar el archivo HTML: ", err);
     });
 
- //document.body.removeChild(divTemporal);
+  document.body.removeChild(divTemporal);
 };
 
         /* Verificar si se encontraron carpetas y fotos
