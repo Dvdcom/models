@@ -230,8 +230,8 @@ function pasarPagina(galeria) {
 //problema de lanzamiento , descripciones se cargan erroneamente
 
 function seleccionarModelo(carousel) {
-  let rutaImagen = ""
-  let i = parseInt(carousel)
+  let rutaImagen = "";
+  let i = parseInt(carousel);
   let texto = descripciones[i];
   document.querySelector('.texto-d').innerHTML = texto;
   let todos = document.querySelectorAll('.carousel-inner');
@@ -243,67 +243,63 @@ function seleccionarModelo(carousel) {
     }
   });
 
-  //descular imagen
+  // Descubrir la imagen
   let fotos = document.querySelectorAll('.carousel-item.active');
   fotos.forEach(element => {
     const padre = element.parentNode;
     if (i === parseInt(padre.id)) {
       const url = element.children;
-      rutaImagen = './modelos/' + nomCarpetas[i] + '/' + url[0].alt;
-      //console.log(rutaImagen);
+      rutaImagen = url[0].currentSrc;
     }
   });
 
-  //crear html temporal
-  const divTemporal = document.createElement('div');
-  divTemporal.style.display = 'none';
-  const imgTemporal = document.createElement('img');
-  imgTemporal.alt = 'img-temp';
-  imgTemporal.src = rutaImagen;
+  // Crear un lienzo (canvas)
+  const canvas = document.createElement('canvas');
+  const ctx = canvas.getContext('2d');
 
-  const pTemporal = document.createElement('p');
-  pTemporal.innerText = texto;
+  // Crear una imagen
+  const img = new Image();
 
-  divTemporal.appendChild(imgTemporal);
-  divTemporal.appendChild(pTemporal);
+  // Cargar la imagen
+  img.src = rutaImagen;
 
-  document.body.appendChild(divTemporal);
+  // Esperar a que la imagen se cargue
+  img.onload = async function () {
 
-  const contenidoHTML = divTemporal.innerHTML;
+    try {
+    // Establecer el tamaño del lienzo según el tamaño de la imagen
+    canvas.width = img.width;
+    canvas.height = img.height;
 
-  // Crear un Blob a partir del contenido HTML
-  const blob = new Blob([contenidoHTML], { type: "text/html" });
-  const itemHTML = new ClipboardItem({ "text/html": blob });
+    // Dibujar la imagen en el lienzo
+    ctx.drawImage(img, 0, 0);
 
-  // Copiar el archivo HTML al portapapeles
-  navigator.clipboard.write([itemHTML])
-    .then(function () {
-      console.log("Archivo HTML copiado al portapapeles.");
-    })
-    .catch(function (err) {
-      console.error("Error al copiar el archivo HTML: ", err);
-    });
+    // Texto que deseas copiar al portapapeles
+    const descripcion = texto;
 
-  document.body.removeChild(divTemporal);
-};
+    // Convertir el lienzo a una imagen PNG
+    canvas.toBlob(async (blob) => {
+      // Crear un objeto ClipboardItem con la imagen
+      const itemImagen = new ClipboardItem({ 'image/png': blob });
 
-        /* Verificar si se encontraron carpetas y fotos
-        if (carpetas.length > 0) {
-          console.log('Carpetas:', carpetas);
-        } else {
-          console.log('No se encontraron carpetas.');
-        }
+      // Crear un blob de texto plano
+      const blobTexto = new Blob([descripcion], { type: 'text/plain' });
 
-        if (fotos.length > 0) {
-          console.log('Fotos:', fotos);
-        } else {
-          console.log('No se encontraron fotos.');
-        }
-      }, function (error) {
-        console.error('Error al leer las entradas del directorio:', error);
-      });
-    }, function (error) {
-      console.error('Error al acceder al directorio "models":', error);
-    });
-  });
-  */
+      // Crear un objeto ClipboardItem con el texto
+      const itemTexto = new ClipboardItem({ 'text/plain': blobTexto });
+
+        // Copiar la imagen y el texto al portapapeles
+        try {
+          await navigator.clipboard.write([itemImagen, itemTexto]);
+          console.log('Imagen y texto copiados al portapapeles');
+            } catch (err) {
+          console.error('Error al copiar la imagen y el texto: ', err);
+          } 
+        }, 'image/png');
+
+    } catch (err) {
+    console.error('Error en la operación asincrónica: ', err);
+    }
+}
+}
+/* pruebas con html y canvas al portapapeles */
