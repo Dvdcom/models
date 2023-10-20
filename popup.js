@@ -287,3 +287,5 @@ img.onload = async () => {
   }
   }
 }
+
+//https://gist.github.com/gangsthub/a4d873e5a450ca4681364e230498710b
