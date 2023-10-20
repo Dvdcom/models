@@ -227,7 +227,7 @@ function pasarPagina(galeria) {
   }
 }
 
-//problema de lanzamiento , descripciones se cargan erroneamente
+/* pruebas con html y canvas al portapapeles */
 
 function seleccionarModelo(carousel) {
   let rutaImagen = "";
@@ -249,57 +249,41 @@ function seleccionarModelo(carousel) {
     const padre = element.parentNode;
     if (i === parseInt(padre.id)) {
       const url = element.children;
-      rutaImagen = url[0].currentSrc;
+      //rutaImagen = url[0].currentSrc;
+      rutaImagen = './modelos/' + nomCarpetas[i] + '/' + url[0].alt;
     }
   });
 
-  // Crear un lienzo (canvas)
-  const canvas = document.createElement('canvas');
-  const ctx = canvas.getContext('2d');
+// Crear una nueva imagen y esperar a que se cargue
+const img = new Image();
+img.src = rutaImagen;
 
-  // Crear una imagen
-  const img = new Image();
+img.onload = async () => {
+  // Crear un div que contendrá la imagen y el texto
+  const divContenedor = `
+    <html>
+    <body>
+      <div>
+        <img src="${img.src}" alt="img-temp" width="220" height="300">
+        <p>${texto}</p>
+      </div>
+    </body>
+    </html>`;
 
-  // Cargar la imagen
-  img.src = rutaImagen;
+  // Crear un Blob a partir del contenido HTML del div
+  const contenidoHTML = divContenedor;
+  
+  const blob = new Blob([contenidoHTML], { type: 'text/html' });
 
-  // Esperar a que la imagen se cargue
-  img.onload = async function () {
+  // Crear un ClipboardItem con el Blob
+  const item = new ClipboardItem({ 'text/html': blob });
 
-    try {
-    // Establecer el tamaño del lienzo según el tamaño de la imagen
-    canvas.width = img.width;
-    canvas.height = img.height;
-
-    // Dibujar la imagen en el lienzo
-    ctx.drawImage(img, 0, 0);
-
-    // Texto que deseas copiar al portapapeles
-    const descripcion = texto;
-
-    // Convertir el lienzo a una imagen PNG
-    canvas.toBlob(async (blob) => {
-      // Crear un objeto ClipboardItem con la imagen
-      const itemImagen = new ClipboardItem({ 'image/png': blob });
-
-      // Crear un blob de texto plano
-      const blobTexto = new Blob([descripcion], { type: 'text/plain' });
-
-      // Crear un objeto ClipboardItem con el texto
-      const itemTexto = new ClipboardItem({ 'text/plain': blobTexto });
-
-        // Copiar la imagen y el texto al portapapeles
-        try {
-          await navigator.clipboard.write([itemImagen, itemTexto]);
-          console.log('Imagen y texto copiados al portapapeles');
-            } catch (err) {
-          console.error('Error al copiar la imagen y el texto: ', err);
-          } 
-        }, 'image/png');
-
-    } catch (err) {
-    console.error('Error en la operación asincrónica: ', err);
-    }
+  try {
+    // Copiar el ClipboardItem al portapapeles
+    await navigator.clipboard.write([item]);
+    console.log('Imagen y texto copiados al portapapeles');
+  } catch (err) {
+    console.error('Error al copiar imagen y texto al portapapeles: ', err);
+  }
+  }
 }
-}
-/* pruebas con html y canvas al portapapeles */
