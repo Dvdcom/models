@@ -1,4 +1,4 @@
-import { copyToClipBoard } from './config/copyToClipBoard';
+import { copyToClipBoard } from './config/copyToClipBoard.mjs';
 
 // Variable global para almacenar el contador de carpetas
 //utilizar variables de arreglos para las carpetas
@@ -8,6 +8,7 @@ let descripciones = [];
 let currentIndex = 0;
 
 async function contarCarpetas() {
+
   try {
     const root = await getPackageDirectoryEntry();
 
@@ -232,8 +233,8 @@ function pasarPagina(galeria) {
 /* pruebas con html y canvas al portapapeles */
 
 function seleccionarModelo(carousel) {
-  let rutaImagen = "";
-  let i = parseInt(carousel);
+  let rutaImagen = ""
+  let i = parseInt(carousel)
   let texto = descripciones[i];
   document.querySelector('.texto-d').innerHTML = texto;
   let todos = document.querySelectorAll('.carousel-inner');
@@ -245,37 +246,52 @@ function seleccionarModelo(carousel) {
     }
   });
 
-  // Descubrir la imagen
+  //descular imagen
   let fotos = document.querySelectorAll('.carousel-item.active');
   fotos.forEach(element => {
-    const padre = element.parentNode;
-    if (i === parseInt(padre.id)) {
-      const url = element.children;
-      //rutaImagen = url[0].currentSrc;
-      rutaImagen = './modelos/' + nomCarpetas[i] + '/' + url[0].alt;
-    }
+      const padre = element.parentNode;
+      if(i === parseInt(padre.id)){
+        const url = element.children;
+        console.log(url);
+        //rutaImagen = url[0].currentSrc;
+        rutaImagen = './modelos/' + nomCarpetas[i] + '/' + url[0].alt; 
+      }
   });
 
-// Crear una nueva imagen y esperar a que se cargue
-const img = new Image();
-img.src = rutaImagen;
+  //crear html temporal
+  const divTemporal = document.createElement('div');
+  divTemporal.className = 'imgGuardar';
+  divTemporal.style.display = 'none';
+  const imgTemporal = document.createElement('img');
+  imgTemporal.alt = 'img-temp';
+  imgTemporal.src = rutaImagen;
 
-img.onload = async () => {
-  // Crear un div que contendrá la imagen y el texto
-  const divContenedor = `
-    <html>
-    <body>
-      <div>
-        <img src="${img.src}" alt="img-temp" width="220" height="300">
-        <p>${texto}</p>
-      </div>
-    </body>
-    </html>`;
+  const pTemporal = document.createElement('p');
+  pTemporal.innerText = texto;
 
-    copyToClipBoard(divContenedor)
-    .then(() => console.log('✅ it worked ! ("Ctrl/Cmd + V" to paste it)'))
-    .catch(e => console.log('❌ something went wrong', e))
-  }
+  divTemporal.appendChild(imgTemporal);
+  divTemporal.appendChild(pTemporal);
+  document.body.appendChild(divTemporal);
+
+  divTemporal.contentEditable = true;
+
+  //Esperar a que la imagen se cargue
+  imgTemporal.onload = function () {
+
+  copyToClipBoard(divTemporal)
+    .then(() => {
+      console.log('✅ it worked ! ("Ctrl/Cmd + V" to paste it)')
+    })
+    .catch(e => {
+      console.log('❌ something went wrong', e);
+    });
+
+  // Eliminar el div temporal una vez que se haya copiado
+  document.body.removeChild(divTemporal);
+  };
+
+  
 }
+
 
 //https://gist.github.com/gangsthub/a4d873e5a450ca4681364e230498710b
