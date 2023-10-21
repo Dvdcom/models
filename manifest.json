@@ -2,12 +2,12 @@
     "manifest_version": 3,
     "name": "modelos",
     "version": "1.0",
-    "description": "pantalla de carga de modelos al portapapeles",
+    "description": "Pantalla de carga de modelos al portapapeles",
     "icons": {
-    "128": "icon/modelo.png"
+        "128": "icon/modelo.png"
     },
     "action": {
-    "default_popup": "popup.html"
+        "default_popup": "popup.html"
     },
-    "permissions": ["clipboardWrite"]
+        "permissions": ["activeTab"]
 }

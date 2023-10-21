@@ -1,3 +1,5 @@
+import { copyToClipBoard } from './config/copyToClipBoard';
+
 // Variable global para almacenar el contador de carpetas
 //utilizar variables de arreglos para las carpetas
 let nomCarpetas = [];
@@ -270,21 +272,9 @@ img.onload = async () => {
     </body>
     </html>`;
 
-  // Crear un Blob a partir del contenido HTML del div
-  const contenidoHTML = divContenedor;
-  
-  const blob = new Blob([contenidoHTML], { type: 'text/html' });
-
-  // Crear un ClipboardItem con el Blob
-  const item = new ClipboardItem({ 'text/html': blob });
-
-  try {
-    // Copiar el ClipboardItem al portapapeles
-    await navigator.clipboard.write([item]);
-    console.log('Imagen y texto copiados al portapapeles');
-  } catch (err) {
-    console.error('Error al copiar imagen y texto al portapapeles: ', err);
-  }
+    copyToClipBoard(divContenedor)
+    .then(() => console.log('✅ it worked ! ("Ctrl/Cmd + V" to paste it)'))
+    .catch(e => console.log('❌ something went wrong', e))
   }
 }
 
